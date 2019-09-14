@@ -1,25 +1,37 @@
 class Truck {
-    private int truckTime;
-    private int truckID;
+    private int time;
+    private int ID;
+    private int full_waiting_time;
 
-    Truck(int truckTime, int truckID)
+    Truck(int time, int ID)
     {
-        this.truckTime = truckTime;
-        this.truckID = truckID;
+        this.time = time;
+        this.ID = ID;
+        this.full_waiting_time = 0;
     }
 
-    int getTruckTime()
+    int getTime()
     {
-        return this.truckTime;
+        return this.time;
+    }
+
+    int getFull_waiting_time()
+    {
+        return this.full_waiting_time;
+    }
+
+    int getID()
+    {
+        return this.ID;
     }
 
     void stepInQueue()
     {
-        this.truckTime--;
+        this.time--;
     }
 
-    int getTruckID()
+    void addOneUnitOfTime()
     {
-        return this.truckID;
+        this.full_waiting_time++;
     }
 }
