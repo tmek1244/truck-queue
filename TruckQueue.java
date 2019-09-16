@@ -15,13 +15,16 @@ public class TruckQueue {
 
     private void addTruckToQueue(Truck new_truck)
     {
-        if(isBetterToAddToFirstQueue())
-            tryToAddToOneQueue(0, new_truck);
-        else
-            tryToAddToOneQueue(1, new_truck);
+        int which_queue = 1;
+        if(shouldAddToFirstQueue())
+            which_queue = 0;
+
+        if(!tryToAddToOneQueue(which_queue, new_truck))
+            if(!tryToAddToOneQueue((which_queue + 1) % 2, new_truck))
+                System.out.println("Cannot add truck to queue - no space");
     }
 
-    private boolean isBetterToAddToFirstQueue()
+    private boolean shouldAddToFirstQueue()
     {
         return getWaitingTimeInQueue(0, 4) <= getWaitingTimeInQueue(1, 4);
     }
@@ -39,22 +42,15 @@ public class TruckQueue {
         return waitingTime;
     }
 
-    private void tryToAddToOneQueue(int which_queue, Truck new_truck)
+    private boolean tryToAddToOneQueue(int which_queue, Truck new_truck)
     {
         int position = getFreeSpaceInQueue(which_queue);
         if(position < LAST_POSITION)
         {
             queue[which_queue][position] = new_truck;
+            return true;
         }
-        else
-        {
-            int otherQueue = (which_queue + 1)%2;
-            position = getFreeSpaceInQueue(otherQueue);
-            if(position < LAST_POSITION)
-                queue[otherQueue][position] = new_truck;
-            else
-                System.out.println("Cannot add truck to queue. There is no space.");
-        }
+        return false;
     }
 
     private int getFreeSpaceInQueue(int which_queue)
@@ -116,7 +112,7 @@ public class TruckQueue {
             if(queue[which_queue][0].getTime() == 0)
             {
                 how_many_trucks_leave++;
-                full_time_waiting += queue[which_queue][0].getFull_waiting_time();
+                full_time_waiting += queue[which_queue][0].getFullWaitingTime();
                 queueForward(which_queue);
             }
         }
@@ -128,22 +124,28 @@ public class TruckQueue {
         queue[which_queue][0] = null;
         while(i < LAST_POSITION && queue[which_queue][i] != null)
         {
-            changeIfProfitableToSwapTrucks(i, which_queue);
+            if(isProfitableToSwap(i, which_queue))
+                swapTrucks(i);
             queue[which_queue][i - 1] = queue[which_queue][i];
             queue[which_queue][i] = null;
             i++;
         }
     }
 
-    private void changeIfProfitableToSwapTrucks(int position, int mainQueue)
+    private boolean isProfitableToSwap(int position, int mainQueue)
     {
         if(queue[0][position] != null && queue[1][position] != null)
             if(queue[mainQueue][position].getTime() > queue[(mainQueue + 1)%2][position].getTime())
-            {
-                Truck buf = queue[mainQueue][position];
-                queue[mainQueue][position] = queue[(mainQueue + 1)%2][position];
-                queue[(mainQueue + 1)%2][position] = buf;
-            }
+                return true;
+
+            return false;
+    }
+
+    private void swapTrucks(int position)
+    {
+        Truck buf = queue[0][position];
+        queue[0][position] = queue[1][position];
+        queue[1][position] = buf;
     }
 
     public int waitingTime(int truckId)
@@ -158,5 +160,4 @@ public class TruckQueue {
         System.out.println("There is no truck in queue with this ID");
         return -1;
     }
-
 }

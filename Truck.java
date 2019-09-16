@@ -15,7 +15,7 @@ class Truck {
         return this.time;
     }
 
-    int getFull_waiting_time()
+    int getFullWaitingTime()
     {
         return this.full_waiting_time;
     }
